@@ -1,0 +1,38 @@
+# Трекер цен 24/7: запуск в Docker за 3 минуты (Эпизод 22, @ByteAutomate_AI)
+version: "3.8"
+
+# Работа идёт без абонентской платы: нужен только свой компьютер или сервер,
+# токен Telegram-бота и этот файл. Условия сервисов проверяйте актуальные.
+services:
+  price-tracker:
+    image: python:3.11-slim
+    container_name: price-tracker-22
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      # Код трекера и список карточек:
+      - ./price_tracker.py:/app/price_tracker.py:ro
+      - ./products.json:/app/products.json:ro
+      - ./requirements.txt:/app/requirements.txt:ro
+      # История котировок переживает пересоздание контейнера.
+      # ВАЖНО (правило 3-2-1): копию папки ./data держите на внешнем диске,
+      # вторую копию отдельно; оригиналы не удалять, пока копия не проверена.
+      - ./data:/app/data
+    environment:
+      # Токен получите у @BotFather, chat_id у @userinfobot. Значения подставить
+      # в файл .env рядом (образец: TELEGRAM_BOT_TOKEN=123:ABC, TELEGRAM_CHAT_ID=123456).
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    # Лимит ресурсов: трекер лёгкий (опрос + SQLite), 128 МБ хватает с запасом
+    # и защищает хост от утечек памяти.
+    mem_limit: 128m
+    memswap_limit: 128m
+    cpus: 0.5
+    command: >
+      sh -c "pip install --no-cache-dir -r requirements.txt
+      && python price_tracker.py --loop"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

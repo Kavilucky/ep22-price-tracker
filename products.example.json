@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Пример: наушники (замените на свой товар)",
+    "url": "https://example-shop.example/product/12345",
+    "target_price": 8990,
+    "selector": ".product-price",
+    "min_interval_s": 600
+  },
+  {
+    "name": "Пример: билет Москва-Сочи (замените на своё направление)",
+    "url": "https://example-avia.example/search/mow-sochi",
+    "target_price": 12000,
+    "selector": ".ticket-price",
+    "min_interval_s": 900
+  }
+]
